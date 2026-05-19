@@ -1,0 +1,26 @@
+一、slice 本质：就是一个 结构体 + 底层数组
+slice 本身 不是数组，它是描述数组的一段片段。
+slice 在内存里长这样（3 个字段）：
+go
+运行
+type slice struct {
+    ptr  *[100]int  // 指针：指向底层数组的起始位置、指向底层数组的第一个元素地址。
+    len  int        // 长度：当前用了多少、你当前用了多少元素，同时也做访问边界。
+    cap  int        // 容量：底层数组最大能放多少、底层数组最大能放多少
+}
+s := make([]int, 3, 5)
+
+
+len == cap 时进行扩容
+< 1024 时，扩容 2 倍
+> 1024 时，扩容 1.25 倍
+
+package main
+
+import "fmt"
+
+func main() {
+	s := make([]int, 3, 6)
+	fmt.Println("长度len:", len(s))
+	fmt.Println("容量cap:", cap(s))
+}

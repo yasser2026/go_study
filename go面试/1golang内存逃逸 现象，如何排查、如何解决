@@ -36,7 +36,15 @@ ch := make(chan *int)
 a := 10
 ch <- &a    // 指针进 channel → 逃逸
 
+
+6.
+make ([] int,10)//小数组可能是栈内存，大数组一定是堆内存，触发扩容就会逃逸
+make ([] int,1000)//大数组一定是堆内存，触发扩容就会逃逸
+
 --编译
 go build -gcflags="-m -l" 
 有如下就是逃逸 
 moved to heap: a  
+
+
+main 里的变量，永远不会显示逃逸！
