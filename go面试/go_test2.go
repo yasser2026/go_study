@@ -120,6 +120,15 @@ func Test_slice_6() {
 func changeSlice2(s1 []int) {
 	s1 = append(s1, 10)
 }
+
+func Test_slice_7() {
+	s := []int{0, 1, 2, 3, 4}
+	s = append(s[:2], s[3:]...)
+	fmt.Println("s: %v, len: %d, cap: %d", s, len(s), cap(s))
+	v := s[4]
+	fmt.Println("v: %v", v)
+	// 是否会数组访问越界
+}
 func main() {
 	Test_slice_1()
 	Test_slice_2()
