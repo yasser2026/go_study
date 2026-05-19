@@ -121,9 +121,16 @@ func changeSlice2(s1 []int) {
 	s1 = append(s1, 10)
 }
 
+/*
+初始化切片 s，长度为 5，容量为 5
+截取切片 s 从索引 2 往后的内容，赋值给 s
+修改 s[4] 的值
+问题：是否会数组访问越界？
+考察：数组越界
+*/
 func Test_slice_7() {
 	s := []int{0, 1, 2, 3, 4}
-	s = append(s[:2], s[3:]...)
+	s = append(s[:2], s[3:]...) // [0,1)  + [3,4] len =5
 	fmt.Println("s: %v, len: %d, cap: %d", s, len(s), cap(s))
 	v := s[4]
 	fmt.Println("v: %v", v)
@@ -136,4 +143,5 @@ func main() {
 	//Test_slice_4() //扩容了，不再是共享底层数组了，slice 地址改变
 	Test_slice_5() //传入切片，修改切片，会影响到原切片，切片是引用传递，值会被修改
 	Test_slice_6()
+	Test_slice_7()
 }
