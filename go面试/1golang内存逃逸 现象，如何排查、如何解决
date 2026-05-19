@@ -1,0 +1,42 @@
+1.golang内存逃逸 现象，如何排查、如何解决
+
+1.指针返回必逃逸
+2.闭包引用必逃逸
+3.动态切片易逃逸
+4.接口赋值会逃逸
+5.通道传指会逃逸
+
+内存逃逸 = 本来应该存在栈上的变量，被迫跑到堆上了
+现象：导致 GC 压力变大、程序变慢、内存变高、高并发下卡顿
+
+1.指针返回必逃逸
+func f() *int {
+    a := 10       // 本来栈变量
+    return &a     // 指针返回 → 立刻逃逸到堆
+}
+2.闭包引用必逃逸
+func f() func() {
+    a := 10
+    return func() {
+        fmt.Println(a)  // 闭包引用 → 逃逸
+    }
+}
+3.动态切片易逃逸
+func f(n int) {
+    s := make([]int, n)  // n 不确定 → 逃逸
+}
+4.接口赋值会逃逸
+func f() {
+    var i interface{}
+    a := 10
+    i = a    // 赋值给 interface → 逃逸
+}
+5.通道传指会逃逸
+ch := make(chan *int)
+a := 10
+ch <- &a    // 指针进 channel → 逃逸
+
+--编译
+go build -gcflags="-m -l" 
+有如下就是逃逸 
+moved to heap: a  
