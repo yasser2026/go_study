@@ -1,0 +1,77 @@
+Go map 底层是 数组 + 链表
+
+type hmap struct {
+    count     int    // 键值对数量
+    B         uint8  // 桶数量 = 2^B
+    buckets    unsafe.Pointer // 桶数组指针
+    oldbuckets unsafe.Pointer // 扩容时的旧桶
+    ...
+}
+
+
+2. 桶结构（bucket）
+每个桶存 8 个 key / 8 个 value
+key 集中存放
+value 集中存放
+好处：内存紧凑，减少内存碎片，访问更快
+go
+运行
+type bmap struct {
+    tophash [8]uint8 // 哈希高8位，快速匹配
+    keys   [8]keytype
+    values [8]valuetype
+    overflow *bmap   // 链表：冲突溢出桶
+}
+3. 寻址流程
+对 key 做哈希  16位
+低 B 位 → 定位桶下标
+高 8 位 → 匹配 tophash
+找到对应 key/value
+桶满了 → 挂溢出桶（链表）
+二、Map 10 道高频面试题（背会直接用）
+1. Go map 是线程安全的吗？
+不是！
+并发读写、并发写 → 直接 panic
+解决方案：
+sync.RWMutex
+sync.Map（读多写少）
+2. Map 扩容触发条件？
+负载因子超过 6.5
+溢出桶过多
+扩容方式：渐进式扩容（不是一次性搬完）
+3. Map 为什么是无序的？
+扩容后 key 会重新洗牌搬迁
+遍历做了随机起始位置
+→ 故意设计成无序，防止开发者依赖顺序
+4. Map 零值可以用吗？
+var m map[string]int 是 nil map
+不能直接赋值，会 panic
+必须 make(map[string]int) 才能用
+5. Map 删除 key 会释放内存吗？
+不会立即释放
+只是标记删除
+只有扩容搬迁时才会真正清理内存
+6. Map 的 key 类型有什么限制？
+必须是可比较类型
+可以：int、string、bool、float、指针、channel
+不可以：slice、map、function
+7. 遍历 Map 时可以删除 key 吗？
+可以删除已遍历过的
+不建议新增 / 删除未遍历的，行为不确定
+8. sync.Map 和普通 map 区别？
+map：性能高，但不安全
+sync.Map：线程安全，适合读多写少
+sync.Map 用空间换安全，写性能差
+9. Map 为什么用链表法，不用开放寻址？
+开放寻址：冲突多、性能掉得快
+拉链法：更稳定、更易实现扩容
+10. 为什么 key 和 value 分开存放？
+plaintext
+[key1 key2 key3] [val1 val2 val3]
+而不是
+plaintext
+key1 val1 key2 val2
+答案：内存对齐，减少空洞，访问更快
+三、一句话总结（面试 30 秒版）
+Go map 底层是哈希表 + 拉链法，用数组 + 链表实现，每个桶存 8 个 key、8 个 value，内存紧凑。
+它非线程安全、无序、nil 不能赋值、触发负载因子 6.5 或溢出桶时渐进式扩容。

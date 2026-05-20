@@ -7,12 +7,16 @@ type Person struct {
 	Age  int
 }
 
+/*
+指针返回必逃逸
+*/
 func f() *int {
 	a := 10   // 本来栈变量
 	return &a // 指针返回 → 立刻逃逸到堆
 }
 
 /*
+闭包引用必逃逸
 需要持久保存状态
 需要动态生成函数
 写中间件、装饰器、回调
@@ -45,6 +49,9 @@ func f3() {
 	fmt.Println(10) //interface{}可以存储任何类型，所以会逃逸
 }
 
+/*
+通道传指针会逃逸
+*/
 func f4(ch chan *int) {
 	a1 := 10
 	ch <- &a1 // 指针进 channel → 逃逸

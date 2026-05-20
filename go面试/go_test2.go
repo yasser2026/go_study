@@ -136,6 +136,99 @@ func Test_slice_7() {
 	fmt.Println("v: %v", v)
 	// 是否会数组访问越界
 }
+
+/*
+slice 的初始化
+
+
+*/
+func Test_slice_8() {
+	fmt.Println("Test_slice_8--------------------------------")
+	var s []int //长度为0，容量为0
+	fmt.Println("s: %v len: %d, cap: %d", s, len(s), cap(s))
+	var s1 = []int{1, 2, 3} //长度为3，容量为3
+
+	s2 := make([]int, 10, 12) //长度为10，容量为12
+	s3 := make([]int, 10)     //长度为10，容量为10
+
+	fmt.Println("s: %v", s)
+	fmt.Println("s1: %v", s1)
+	fmt.Println("s2: %v", s2)
+	fmt.Println("s3: %v", s3)
+}
+
+func Test_slice_9() {
+	fmt.Println("Test_slice_9--------------------------------")
+	s := make([]int, 10, 12)
+	changeSlice9(&s) //传入切片地址，修改切片，会影响到原切片，切片是引用传递，值会被修改
+	fmt.Println("s: %v len: %d, cap: %d", s, len(s), cap(s))
+}
+
+func changeSlice9(s *[]int) {
+	*s = append(*s, 10)
+	*s = append(*s, 11)
+	*s = append(*s, 12)
+}
+
+func Test_slice_10() {
+	fmt.Println("Test_slice_10--------------------------------")
+	s := []int{1, 2, 3, 4, 5}
+	s1 := s[1:]
+	s2 := s[:len(s)-1]
+	s3 := s[1 : len(s)-1]
+	s4 := s[0:len(s)]
+	fmt.Println("s1: %v", s1)
+	fmt.Println("s2: %v", s2)
+	fmt.Println("s3: %v", s3)
+	fmt.Println("s4: %v", s4)
+}
+
+/*
+slice 的截取,是共享数组
+*/
+func Test_slice_11() {
+	fmt.Println("Test_slice_11--------------------------------")
+	s := []int{1, 2, 3, 4, 5}
+	s1 := s[1:]
+	s1[0] = 1000
+	fmt.Println("s: %v", s)
+	s2 := append(s[1:2], s[3:]...)
+	s2[0] = 2000
+	fmt.Println("s2: %v", s2)
+	fmt.Println("s: %v", s)
+	s2[1] = 3000
+	fmt.Println("s: %v", s)
+}
+
+/*
+slice 的截取,是共享数组
+如果是交集会怎么样，原数组会被覆盖
+*/
+func Test_slice_12() {
+	fmt.Println("Test_slice_11--------------------------------")
+	s := []int{1, 2, 3, 4, 5}
+	s1 := append(s[:2], s[1:3]...)
+	// s 会被覆盖掉
+	fmt.Println("s1: %v", s1)
+
+	s1[1] = 200
+	fmt.Println("s1: %v", s1)
+	fmt.Println("s: %v", s)
+
+}
+
+/*
+copy dst 必须有长度，  只会覆盖 min(len(dst), len(src))
+*/
+
+func Test_slice_13() {
+	fmt.Println("Test_slice_13--------------------------------")
+	s := []int{1, 2, 3}
+	s1 := []int{6, 7}
+	copy(s, s1)
+	fmt.Println("s: %v", s)
+	fmt.Println("s1: %v", s1)
+}
 func main() {
 	Test_slice_1()
 	Test_slice_2()
@@ -143,5 +236,11 @@ func main() {
 	//Test_slice_4() //扩容了，不再是共享底层数组了，slice 地址改变
 	Test_slice_5() //传入切片，修改切片，会影响到原切片，切片是引用传递，值会被修改
 	Test_slice_6()
-	Test_slice_7()
+	//Test_slice_7()
+	Test_slice_8()
+	Test_slice_9()
+	Test_slice_10()
+	Test_slice_11()
+	Test_slice_12()
+	Test_slice_13()
 }
